@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garden History</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            align-items: flex-start;
+            padding-top: 28px;
+        }
+
+        .history-page {
+            max-width: 1400px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .history-meta {
+            color: #42506a;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .history-section {
+            margin-top: 18px;
+        }
+
+        .history-section h2 {
+            margin-bottom: 10px;
+            color: #25334f;
+            font-size: 1.2rem;
+        }
+
+        .sensor-relay-group {
+            margin-top: 18px;
+            border: 1px solid #dfe5f1;
+            border-radius: 12px;
+            background: #ffffff;
+            padding: 14px;
+        }
+
+        .sensor-relay-group h3 {
+            color: #243b62;
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        .group-subtitle {
+            color: #40577a;
+            font-weight: 700;
+            margin: 10px 0 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .group-empty {
+            color: #6b7a92;
+            font-style: italic;
+            margin: 6px 0 10px 0;
+            font-size: 0.88rem;
+        }
+
+        .table-wrap {
+            overflow: auto;
+            border: 1px solid #dfe5f1;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #edf1f8;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 0.86rem;
+            white-space: nowrap;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: #ecf2ff;
+            color: #243b62;
+            z-index: 1;
+        }
+
+        tr:nth-child(even) td {
+            background: #fafcff;
+        }
+
+        .history-error {
+            background: #ffd8dc;
+            color: #8b1e24;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: none;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container history-page">
+        <div class="history-header">
+            <h1>Database History</h1>
+            <div>
+                <button id="refresh-history" class="btn" type="button">Refresh</button>
+                <button id="back-dashboard" class="btn btn-secondary" type="button">Back to Dashboard</button>
+            </div>
+        </div>
+
+        <p class="history-meta" id="history-meta">Loading...</p>
+        <div id="history-error" class="history-error"></div>
+
+        <section class="history-section">
+            <h2>Grouped by Soil Sensor and Relay (Last 25 Hours)</h2>
+            <div id="grouped-history"></div>
+        </section>
+    </div>
+
+    <script src="history.js"></script>
+</body>
+</html>

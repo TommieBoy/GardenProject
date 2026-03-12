@@ -1,0 +1,18 @@
+[Unit]
+Description=Garden Sensor Dashboard Proxy
+After=network-online.target
+Wants=network-online.target
+After=relay-helper.service
+Requires=relay-helper.service
+
+[Service]
+Type=simple
+User=tom
+WorkingDirectory=/home/tom/Garden
+ExecStart=/usr/bin/node /home/tom/Garden/server.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

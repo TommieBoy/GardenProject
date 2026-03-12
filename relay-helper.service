@@ -1,0 +1,15 @@
+[Unit]
+Description=Garden Relay GPIO Helper
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/tom/Garden
+ExecStart=/usr/bin/node /home/tom/Garden/relay-helper.js
+Restart=always
+RestartSec=2
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

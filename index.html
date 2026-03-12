@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Sensor Dashboard</h1>
+        
+        <div class="dashboard">
+            <div class="sensor-card temperature">
+                <div class="sensor-icon">🌡️</div>
+                <h2>Temperature</h2>
+                <p class="sensor-value" id="temperature">-- °C</p>
+                <p class="sensor-status" id="temp-status">Loading...</p>
+            </div>
+
+            <div class="sensor-card humidity">
+                <div class="sensor-icon">💧</div>
+                <h2>Humidity</h2>
+                <p class="sensor-value" id="humidity">-- %</p>
+                <p class="sensor-status" id="humidity-status">Loading...</p>
+            </div>
+
+            <div class="sensor-card cpu-temp">
+                <div class="sensor-icon">💻</div>
+                <h2>CPU Temp</h2>
+                <p class="sensor-value" id="cpuTemp">-- °C</p>
+                <p class="sensor-status" id="cpu-status">Loading...</p>
+            </div>
+
+            <div class="sensor-card soil-moisture">
+                <div class="sensor-icon">🌱</div>
+                <h2 id="soil-title">Soil Moisture</h2>
+                <p class="sensor-value" id="soilMoisture">-- %</p>
+                <p class="sensor-status" id="soil-status">Loading...</p>
+            </div>
+
+            <div class="sensor-card soil-moisture future-sensor">
+                <div class="sensor-icon">🪴</div>
+                <h2>Soil Moisture 2</h2>
+                <p class="sensor-value">-- %</p>
+                <p class="sensor-status">Coming soon</p>
+            </div>
+
+            <div class="sensor-card soil-moisture future-sensor">
+                <div class="sensor-icon">🪴</div>
+                <h2>Soil Moisture 3</h2>
+                <p class="sensor-value">-- %</p>
+                <p class="sensor-status">Coming soon</p>
+            </div>
+
+            <div class="sensor-card soil-moisture future-sensor">
+                <div class="sensor-icon">🪴</div>
+                <h2>Soil Moisture 4</h2>
+                <p class="sensor-value">-- %</p>
+                <p class="sensor-status">Coming soon</p>
+            </div>
+
+            <div class="sensor-card soil-moisture future-sensor">
+                <div class="sensor-icon">🪴</div>
+                <h2>Soil Moisture 5</h2>
+                <p class="sensor-value">-- %</p>
+                <p class="sensor-status">Coming soon</p>
+            </div>
+
+            <div class="sensor-card soil-moisture future-sensor">
+                <div class="sensor-icon">🪴</div>
+                <h2>Soil Moisture 6</h2>
+                <p class="sensor-value">-- %</p>
+                <p class="sensor-status">Coming soon</p>
+            </div>
+
+            <div class="sensor-card soil-moisture future-sensor">
+                <div class="sensor-icon">🪴</div>
+                <h2>Soil Moisture 7</h2>
+                <p class="sensor-value">-- %</p>
+                <p class="sensor-status">Coming soon</p>
+            </div>
+
+            <div class="sensor-card soil-moisture future-sensor">
+                <div class="sensor-icon">🪴</div>
+                <h2>Soil Moisture 8</h2>
+                <p class="sensor-value">-- %</p>
+                <p class="sensor-status">Coming soon</p>
+            </div>
+        </div>
+
+        <section class="relay-section" aria-label="Relay controls">
+            <div class="relay-header">
+                <h2>Relay Controls</h2>
+                <p class="relay-health relay-health-unknown" id="relay-health">Relay hardware: checking...</p>
+            </div>
+            <div class="relay-grid" id="relay-grid">
+                <div class="relay-card" data-relay-id="1">
+                    <h3>Relay 1</h3>
+                    <p class="relay-map">Sensor 1</p>
+                    <p class="relay-status" id="relay-status-1">Loading...</p>
+                    <div class="relay-actions">
+                        <button class="btn relay-btn relay-on" data-relay-id="1" data-action="on">On</button>
+                        <button class="btn btn-secondary relay-btn relay-off" data-relay-id="1" data-action="off">Off</button>
+                    </div>
+                </div>
+
+                <div class="relay-card" data-relay-id="2">
+                    <h3>Relay 2</h3>
+                    <p class="relay-map">Sensor 2</p>
+                    <p class="relay-status" id="relay-status-2">Loading...</p>
+                    <div class="relay-actions">
+                        <button class="btn relay-btn relay-on" data-relay-id="2" data-action="on">On</button>
+                        <button class="btn btn-secondary relay-btn relay-off" data-relay-id="2" data-action="off">Off</button>
+                    </div>
+                </div>
+
+                <div class="relay-card" data-relay-id="3">
+                    <h3>Relay 3</h3>
+                    <p class="relay-map">Sensor 3</p>
+                    <p class="relay-status" id="relay-status-3">Loading...</p>
+                    <div class="relay-actions">
+                        <button class="btn relay-btn relay-on" data-relay-id="3" data-action="on">On</button>
+                        <button class="btn btn-secondary relay-btn relay-off" data-relay-id="3" data-action="off">Off</button>
+                    </div>
+                </div>
+
+                <div class="relay-card" data-relay-id="4">
+                    <h3>Relay 4</h3>
+                    <p class="relay-map">Sensor 4</p>
+                    <p class="relay-status" id="relay-status-4">Loading...</p>
+                    <div class="relay-actions">
+                        <button class="btn relay-btn relay-on" data-relay-id="4" data-action="on">On</button>
+                        <button class="btn btn-secondary relay-btn relay-off" data-relay-id="4" data-action="off">Off</button>
+                    </div>
+                </div>
+
+                <div class="relay-card" data-relay-id="5">
+                    <h3>Relay 5</h3>
+                    <p class="relay-map">Sensor 5</p>
+                    <p class="relay-status" id="relay-status-5">Loading...</p>
+                    <div class="relay-actions">
+                        <button class="btn relay-btn relay-on" data-relay-id="5" data-action="on">On</button>
+                        <button class="btn btn-secondary relay-btn relay-off" data-relay-id="5" data-action="off">Off</button>
+                    </div>
+                </div>
+
+                <div class="relay-card" data-relay-id="6">
+                    <h3>Relay 6</h3>
+                    <p class="relay-map">Sensor 6</p>
+                    <p class="relay-status" id="relay-status-6">Loading...</p>
+                    <div class="relay-actions">
+                        <button class="btn relay-btn relay-on" data-relay-id="6" data-action="on">On</button>
+                        <button class="btn btn-secondary relay-btn relay-off" data-relay-id="6" data-action="off">Off</button>
+                    </div>
+                </div>
+
+                <div class="relay-card" data-relay-id="7">
+                    <h3>Relay 7</h3>
+                    <p class="relay-map">Sensor 7</p>
+                    <p class="relay-status" id="relay-status-7">Loading...</p>
+                    <div class="relay-actions">
+                        <button class="btn relay-btn relay-on" data-relay-id="7" data-action="on">On</button>
+                        <button class="btn btn-secondary relay-btn relay-off" data-relay-id="7" data-action="off">Off</button>
+                    </div>
+                </div>
+
+                <div class="relay-card" data-relay-id="8">
+                    <h3>Relay 8</h3>
+                    <p class="relay-map">Sensor 8</p>
+                    <p class="relay-status" id="relay-status-8">Loading...</p>
+                    <div class="relay-actions">
+                        <button class="btn relay-btn relay-on" data-relay-id="8" data-action="on">On</button>
+                        <button class="btn btn-secondary relay-btn relay-off" data-relay-id="8" data-action="off">Off</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="controls">
+            <button id="refresh-btn" class="btn">Refresh Data</button>
+            <button id="setup-btn" class="btn btn-secondary">Setup</button>
+            <p class="last-updated" id="last-updated">Last updated: --</p>
+        </div>
+
+        <div class="error-message" id="error-message" style="display: none;"></div>
+    </div>
+
+    <!-- Setup Modal -->
+    <div id="setup-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Setup Configuration</h2>
+                <span class="close-btn" id="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <label for="ecowitt-url">EcoWitt Share URL:</label>
+                <input type="text" id="ecowitt-url" class="url-input" placeholder="https://www.ecowitt.net/home/share?authorize=...">
+                <p class="help-text">Enter your EcoWitt weather station public share link</p>
+                
+                <label for="watering-interval">Watering Interval (minutes):</label>
+                <input type="number" id="watering-interval" class="number-input" min="1" max="60" value="20">
+                <p class="help-text">Set interval between 1-60 minutes (default: 20 minutes)</p>
+
+                <label for="watering-start-time">Watering Start Time (HHMM):</label>
+                <input type="text" id="watering-start-time" class="url-input" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" value="0600" placeholder="0600">
+                <p class="help-text">24-hour format, from 0000 to 2359 (default: 0600)</p>
+
+                <label for="email-1">Report Email 1:</label>
+                <input type="email" id="email-1" class="url-input" placeholder="name@example.com">
+                <p class="help-text">Optional: daily report recipient at 7:00 AM</p>
+
+                <label for="email-2">Report Email 2:</label>
+                <input type="email" id="email-2" class="url-input" placeholder="name@example.com">
+                <p class="help-text">Optional: second daily report recipient</p>
+                
+                <div class="stats-section">
+                    <p class="stats-label">EcoWitt Page Access Count:</p>
+                    <p class="stats-value" id="access-count">--</p>
+                </div>
+
+                <div class="history-actions">
+                    <button id="show-history" class="btn btn-secondary" type="button">Open History Screen (50 Recent)</button>
+                    <button id="email-history" class="btn" type="button">Email Complete History</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-config" class="btn">Save Configuration</button>
+                <button id="cancel-config" class="btn btn-secondary">Cancel</button>
+            </div>
+            <div id="setup-message" class="setup-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
