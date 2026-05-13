@@ -114,6 +114,19 @@ function initializeDatabase() {
       soil_moisture_7 REAL,
       soil_moisture_8 REAL
     );
+    CREATE TABLE IF NOT EXISTS rain_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      recorded_at TEXT NOT NULL,
+      record_date TEXT NOT NULL,
+      record_hour TEXT NOT NULL,
+      record_minute TEXT NOT NULL,
+      rain_rate_in REAL,
+      hourly_in REAL,
+      daily_in REAL,
+      weekly_in REAL,
+      monthly_in REAL,
+      yearly_in REAL
+    );
     CREATE TABLE IF NOT EXISTS relay_on_log (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       relay_id INTEGER NOT NULL,
@@ -1201,6 +1214,10 @@ const server = http.createServer(async (req, res) => {
       try {
         const params = new URLSearchParams(body);
         const toMm = v => v !== null ? Math.round(parseFloat(v) * 25.4 * 10) / 10 : null;
+        const now = new Date().toISOString();
+        const { date, time } = formatDateAndTime(now);
+        const hour = time.slice(0, 2);
+        const minute = time.slice(3, 5);
         latestRainData = {
           rainRateMm:   toMm(params.get('rainratein')),
           last60MinMm:  toMm(params.get('hourlyrainin')),
@@ -1208,8 +1225,25 @@ const server = http.createServer(async (req, res) => {
           last7DaysMm:  toMm(params.get('weeklyrainin')),
           last30DaysMm: toMm(params.get('monthlyrainin')),
           yearToDateMm: toMm(params.get('yearlyrainin')),
-          capturedAt:   new Date().toISOString()
+          capturedAt:   now
         };
+        runSql(`
+          INSERT INTO rain_log (
+            recorded_at, record_date, record_hour, record_minute,
+            rain_rate_in, hourly_in, daily_in, weekly_in, monthly_in, yearly_in
+          ) VALUES (
+            ${toSqlValue(now)},
+            ${toSqlValue(date)},
+            ${toSqlValue(hour)},
+            ${toSqlValue(minute)},
+            ${toSqlValue(params.get('rainratein'))},
+            ${toSqlValue(params.get('hourlyrainin'))},
+            ${toSqlValue(params.get('dailyrainin'))},
+            ${toSqlValue(params.get('weeklyrainin'))},
+            ${toSqlValue(params.get('monthlyrainin'))},
+            ${toSqlValue(params.get('yearlyrainin'))}
+          );
+        `);
         res.writeHead(200);
         res.end('OK');
       } catch (err) {
@@ -1224,6 +1258,116 @@ const server = http.createServer(async (req, res) => {
   if (reqPath === '/api/rain' && req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(latestRainData || { error: 'No rain data received yet' }));
+    return;
+  }
+
+  // Rain history API
+  if (reqPath === '/api/rain/history' && req.method === 'GET') {
+    try {
+      const now = new Date();
+      // Use local Vancouver time (PDT = UTC-7, PST = UTC-8)
+      const localOffset = now.getTimezoneOffset() * 60000;
+      const localNow = new Date(now - localOffset);
+      const todayStr = localNow.toISOString().slice(0, 10);
+      const year = localNow.getFullYear();
+
+      // All queries use UTC timestamps directly, then convert to local (PDT = UTC-7)
+      // Local time label helpers done in JS using Date object
+
+      // Last 60 minutes - rain rate per reading
+      const last60Raw = querySqlRows(`
+        SELECT recorded_at,
+               strftime('%H:%M', datetime(recorded_at, '-7 hours')) AS minute,
+               COALESCE(rain_rate_in, 0) * 25.4 AS rain_mm
+        FROM rain_log
+        WHERE recorded_at >= datetime('now', '-60 minutes')
+        ORDER BY recorded_at;
+      `);
+      // Fill in all 60 minutes with 0 for gaps
+      const last60 = [];
+      const now60 = new Date();
+      for (let i = 59; i >= 0; i--) {
+        const t = new Date(now60 - i * 60000);
+        const label = t.getHours().toString().padStart(2,'0') + ':' + t.getMinutes().toString().padStart(2,'0');
+        const match = last60Raw.find(r => r.minute === label);
+        last60.push({ minute: label, rain_mm: match ? Math.round(match.rain_mm * 10) / 10 : 0 });
+      }
+
+      // Today by hour - convert UTC to local for grouping
+      const todayRaw = querySqlRows(`
+        SELECT strftime('%H', datetime(recorded_at, '-7 hours')) AS hour,
+               MAX(daily_in) * 25.4 AS rain_mm
+        FROM rain_log
+        WHERE date(datetime(recorded_at, '-7 hours')) = '${todayStr}'
+        GROUP BY hour
+        ORDER BY hour;
+      `);
+      const todayByHour = [];
+      for (let h = 0; h < 24; h++) {
+        const label = h.toString().padStart(2,'0');
+        const match = todayRaw.find(r => r.hour === label);
+        todayByHour.push({ hour: label, rain_mm: match ? Math.round(match.rain_mm * 10) / 10 : 0 });
+      }
+
+      // Last 7 days by day - convert UTC to local date
+      const last7Raw = querySqlRows(`
+        SELECT date(datetime(recorded_at, '-7 hours')) AS day,
+               MAX(daily_in) * 25.4 AS rain_mm
+        FROM rain_log
+        WHERE date(datetime(recorded_at, '-7 hours')) >= '${todayStr.slice(0,10)}'
+          AND date(datetime(recorded_at, '-7 hours')) >= date('${todayStr}', '-6 days')
+        GROUP BY day
+        ORDER BY day;
+      `);
+      const last7 = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now60);
+        d.setDate(d.getDate() - i);
+        const day = (new Date(d - d.getTimezoneOffset()*60000)).toISOString().slice(0,10);
+        const match = last7Raw.find(r => r.day === day);
+        last7.push({ day, rain_mm: match ? Math.round(match.rain_mm * 10) / 10 : 0 });
+      }
+
+      // Last 30 days by day
+      const last30Raw = querySqlRows(`
+        SELECT date(datetime(recorded_at, '-7 hours')) AS day,
+               MAX(daily_in) * 25.4 AS rain_mm
+        FROM rain_log
+        WHERE date(datetime(recorded_at, '-7 hours')) >= date('${todayStr}', '-29 days')
+        GROUP BY day
+        ORDER BY day;
+      `);
+      const last30 = [];
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(now60);
+        d.setDate(d.getDate() - i);
+        const day = (new Date(d - d.getTimezoneOffset()*60000)).toISOString().slice(0,10);
+        const match = last30Raw.find(r => r.day === day);
+        last30.push({ day, rain_mm: match ? Math.round(match.rain_mm * 10) / 10 : 0 });
+      }
+
+      // Year to date by month - use local date
+      const ytdRaw = querySqlRows(`
+        SELECT strftime('%Y-%m', datetime(recorded_at, '-7 hours')) AS month,
+               MAX(yearly_in) * 25.4 AS cumulative_mm
+        FROM rain_log
+        WHERE strftime('%Y', datetime(recorded_at, '-7 hours')) = '${year}'
+        GROUP BY month
+        ORDER BY month;
+      `);
+      const ytdByMonth = ytdRaw.map((row, i) => ({
+        month: row.month,
+        rain_mm: i === 0
+          ? Math.round(row.cumulative_mm * 10) / 10
+          : Math.round((row.cumulative_mm - ytdRaw[i-1].cumulative_mm) * 10) / 10
+      }));
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ last60, todayByHour, last7, last30, ytdByMonth }));
+    } catch (error) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: error.message }));
+    }
     return;
   }
 

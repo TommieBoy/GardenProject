@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sensor Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -118,6 +119,33 @@
                     </div>
                 </div>
             </div>
+
+
+        <section class="rain-charts-section">
+            <h2>Rainfall History</h2>
+            <div class="rain-charts-grid">
+                <div class="rain-chart-card">
+                    <h3>Last 60 Minutes</h3>
+                    <canvas id="chart-60min"></canvas>
+                </div>
+                <div class="rain-chart-card">
+                    <h3>Today by Hour</h3>
+                    <canvas id="chart-today"></canvas>
+                </div>
+                <div class="rain-chart-card">
+                    <h3>Last 7 Days</h3>
+                    <canvas id="chart-7days"></canvas>
+                </div>
+                <div class="rain-chart-card">
+                    <h3>Last 30 Days</h3>
+                    <canvas id="chart-30days"></canvas>
+                </div>
+                <div class="rain-chart-card rain-chart-wide">
+                    <h3>Year to Date by Month</h3>
+                    <canvas id="chart-ytd"></canvas>
+                </div>
+            </div>
+        </section>
 
         <section class="relay-section" aria-label="Relay controls">
             <div class="relay-header">

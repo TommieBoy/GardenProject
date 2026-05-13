@@ -539,3 +539,46 @@ h1 {
   color: #fff;
   font-weight: 600;
 }
+
+/* Rain charts section */
+.rain-charts-section {
+  margin: 2rem 0;
+}
+
+.rain-charts-section h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.rain-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.2rem;
+}
+
+.rain-chart-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.rain-chart-card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+  color: #555;
+}
+
+.rain-chart-wide {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 600px) {
+  .rain-charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .rain-chart-wide {
+    grid-column: 1;
+  }
+}
