@@ -507,3 +507,35 @@ h1 {
 }
 
 .relay-section { display: none; }
+
+/* Rain card */
+.sensor-card.rain {
+  background: linear-gradient(135deg, #1a6fa8 0%, #2196d3 100%);
+}
+
+.rain-history {
+  margin-top: 12px;
+  width: 100%;
+}
+
+.rain-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  font-size: 0.9em;
+}
+
+.rain-row:last-child {
+  border-bottom: none;
+}
+
+.rain-label {
+  color: rgba(255,255,255,0.85);
+}
+
+.rain-value {
+  color: #fff;
+  font-weight: 600;
+}

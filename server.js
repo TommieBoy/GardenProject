@@ -30,6 +30,7 @@ let reportTimer = null;
 let sensorPollTimer = null;
 let sensorPollStartTimer = null;
 let latestSensorSnapshot = null;
+let latestRainData = null;
 const relayAutoOffTimers = new Array(RELAY_COUNT).fill(null);
 const relayState = Array.from({ length: RELAY_COUNT }, (_, index) => ({
   id: index + 1,
@@ -1188,6 +1189,41 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Failed to read CPU temperature', details: error.message }));
     }
+    return;
+  }
+
+
+  // EcoWitt push receiver
+  if (reqPath === '/data/report/' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', () => {
+      try {
+        const params = new URLSearchParams(body);
+        const toMm = v => v !== null ? Math.round(parseFloat(v) * 25.4 * 10) / 10 : null;
+        latestRainData = {
+          rainRateMm:   toMm(params.get('rainratein')),
+          last60MinMm:  toMm(params.get('hourlyrainin')),
+          todayMm:      toMm(params.get('dailyrainin')),
+          last7DaysMm:  toMm(params.get('weeklyrainin')),
+          last30DaysMm: toMm(params.get('monthlyrainin')),
+          yearToDateMm: toMm(params.get('yearlyrainin')),
+          capturedAt:   new Date().toISOString()
+        };
+        res.writeHead(200);
+        res.end('OK');
+      } catch (err) {
+        res.writeHead(500);
+        res.end('Error');
+      }
+    });
+    return;
+  }
+
+  // Rain data API
+  if (reqPath === '/api/rain' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(latestRainData || { error: 'No rain data received yet' }));
     return;
   }
 

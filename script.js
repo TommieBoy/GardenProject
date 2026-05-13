@@ -646,3 +646,33 @@ function showSetupMessage(message, type) {
     setupMessageEl.style.display = 'block';
 }
 
+
+// Rain data
+async function fetchRainData() {
+  try {
+    const response = await fetch('/api/rain');
+    const data = await response.json();
+    if (data.error) {
+      document.getElementById('rainRate').textContent = '-- mm/hr';
+      document.getElementById('rain-rate-status').textContent = 'Waiting for data...';
+      ['rain60min','rainToday','rain7days','rain30days','rainYTD'].forEach(id => {
+        document.getElementById(id).textContent = '--';
+      });
+      return;
+    }
+    const fmt = v => v !== null ? `${v} mm` : '-- mm';
+    document.getElementById('rainRate').textContent = data.rainRateMm !== null ? `${data.rainRateMm} mm/hr` : '-- mm/hr';
+    document.getElementById('rain-rate-status').textContent = data.rainRateMm > 0 ? 'Currently raining' : 'No rain currently';
+    document.getElementById('rain60min').textContent = fmt(data.last60MinMm);
+    document.getElementById('rainToday').textContent = fmt(data.todayMm);
+    document.getElementById('rain7days').textContent = fmt(data.last7DaysMm);
+    document.getElementById('rain30days').textContent = fmt(data.last30DaysMm);
+    document.getElementById('rainYTD').textContent = fmt(data.yearToDateMm);
+  } catch (err) {
+    console.error('Failed to fetch rain data:', err);
+  }
+}
+
+// Fetch rain data on load and every 60 seconds
+fetchRainData();
+setInterval(fetchRainData, 60000);
