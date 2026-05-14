@@ -290,6 +290,14 @@ function displaySensorData(data) {
         temperatureEl.textContent = data.temperature.toFixed(1) + ' °C';
         tempStatusEl.textContent = getTemperatureStatus(data.temperature);
         applyStatusClass(tempStatusEl, getTemperatureLevel(data.temperature));
+        if (data.hottestDay) {
+            document.getElementById('hottestDay').textContent =
+                data.hottestDay.day + ' (' + data.hottestDay.temp + String.fromCharCode(176) + 'C)';
+        }
+        if (data.coldestDay) {
+            document.getElementById('coldestDay').textContent =
+                data.coldestDay.day + ' (' + data.coldestDay.temp + String.fromCharCode(176) + 'C)';
+        }
     } else {
         temperatureEl.textContent = '-- °C';
         tempStatusEl.textContent = 'Invalid data';
@@ -668,6 +676,20 @@ async function fetchRainData() {
     document.getElementById('rain7days').textContent = fmt(data.last7DaysMm);
     document.getElementById('rain30days').textContent = fmt(data.last30DaysMm);
     document.getElementById('rainYTD').textContent = fmt(data.yearToDateMm);
+
+    // Wettest day
+    if (data.wettestDay) {
+      document.getElementById('rainWettestDay').textContent =
+        `${data.wettestDay.day} (${Math.round(data.wettestDay.rain_mm * 10) / 10} mm)`;
+    }
+
+    // Wettest month
+    if (data.wettestMonth) {
+      const [yr, mo] = data.wettestMonth.month.split('-');
+      const monthName = new Date(yr, mo-1).toLocaleString('default', { month: 'long' });
+      document.getElementById('rainWettestMonth').textContent =
+        `${monthName} (${data.wettestMonth.rain_mm} mm)`;
+    }
   } catch (err) {
     console.error('Failed to fetch rain data:', err);
   }

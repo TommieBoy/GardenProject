@@ -1218,6 +1218,7 @@ const server = http.createServer(async (req, res) => {
         const { date, time } = formatDateAndTime(now);
         const hour = time.slice(0, 2);
         const minute = time.slice(3, 5);
+        const toNum = v => { const n = parseFloat(v); return isFinite(n) ? n : null; };
         latestRainData = {
           rainRateMm:   toMm(params.get('rainratein')),
           last60MinMm:  toMm(params.get('hourlyrainin')),
@@ -1227,6 +1228,21 @@ const server = http.createServer(async (req, res) => {
           yearToDateMm: toMm(params.get('yearlyrainin')),
           capturedAt:   now
         };
+        // Merge soil moisture into latest sensor snapshot from push data
+        latestSensorSnapshot = {
+            ...(latestSensorSnapshot || {}),
+            soilMoisture:  toNum(params.get('soilmoisture1')),
+            soilMoisture2: toNum(params.get('soilmoisture2')),
+            soilMoisture3: toNum(params.get('soilmoisture3')),
+            soilMoisture4: toNum(params.get('soilmoisture4')),
+            soilMoisture5: toNum(params.get('soilmoisture5')),
+            soilMoisture6: toNum(params.get('soilmoisture6')),
+            soilMoisture7: toNum(params.get('soilmoisture7')),
+            soilMoisture8: toNum(params.get('soilmoisture8')),
+            temperature:   toNum(params.get('tempf')) !== null ? Math.round((toNum(params.get('tempf')) - 32) * 5/9 * 10) / 10 : latestSensorSnapshot.temperature,
+            humidity:      toNum(params.get('humidity')) ?? latestSensorSnapshot.humidity,
+            capturedAt:    now
+          };
         runSql(`
           INSERT INTO rain_log (
             recorded_at, record_date, record_hour, record_minute,
@@ -1256,8 +1272,50 @@ const server = http.createServer(async (req, res) => {
 
   // Rain data API
   if (reqPath === '/api/rain' && req.method === 'GET') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(latestRainData || { error: 'No rain data received yet' }));
+    try {
+      const now = new Date();
+      const year = new Date(now.getTime() + 7*60000*60).getFullYear();
+
+      // Wettest day of the year
+      const wettestDay = querySqlRows(`
+        SELECT date(datetime(recorded_at, '-7 hours')) AS day,
+               MAX(daily_in) * 25.4 AS rain_mm
+        FROM rain_log
+        WHERE strftime('%Y', datetime(recorded_at, '-7 hours')) = '${year}'
+        GROUP BY day
+        ORDER BY rain_mm DESC
+        LIMIT 1;
+      `);
+
+      // Wettest month of the year
+      const wettestMonthRaw = querySqlRows(`
+        SELECT strftime('%Y-%m', datetime(recorded_at, '-7 hours')) AS month,
+               MAX(yearly_in) * 25.4 AS cumulative_mm
+        FROM rain_log
+        WHERE strftime('%Y', datetime(recorded_at, '-7 hours')) = '${year}'
+        GROUP BY month
+        ORDER BY month;
+      `);
+      // Convert cumulative to per-month then find max
+      const monthlyAmounts = wettestMonthRaw.map((row, i) => ({
+        month: row.month,
+        rain_mm: i === 0
+          ? Math.round(row.cumulative_mm * 10) / 10
+          : Math.round((row.cumulative_mm - wettestMonthRaw[i-1].cumulative_mm) * 10) / 10
+      }));
+      const wettestMonth = monthlyAmounts.reduce((a, b) => b.rain_mm > a.rain_mm ? b : a, { month: null, rain_mm: 0 });
+
+      const payload = {
+        ...(latestRainData || { error: 'No rain data received yet' }),
+        wettestDay: wettestDay[0] || null,
+        wettestMonth: wettestMonth.month ? wettestMonth : null
+      };
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(payload));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
     return;
   }
 
@@ -1374,7 +1432,19 @@ const server = http.createServer(async (req, res) => {
   // API endpoint for sensor data
   if (reqPath === '/api/sensors') {
     try {
-      latestSensorSnapshot = await fetchAndParseSensorSnapshot({ recordReading: false });
+      const scraped = await fetchAndParseSensorSnapshot({ recordReading: false });
+      // Preserve soil moisture from push data if scraper returns null
+      latestSensorSnapshot = {
+        ...scraped,
+        soilMoisture:  scraped.soilMoisture  ?? latestSensorSnapshot?.soilMoisture  ?? null,
+        soilMoisture2: scraped.soilMoisture2 ?? latestSensorSnapshot?.soilMoisture2 ?? null,
+        soilMoisture3: scraped.soilMoisture3 ?? latestSensorSnapshot?.soilMoisture3 ?? null,
+        soilMoisture4: scraped.soilMoisture4 ?? latestSensorSnapshot?.soilMoisture4 ?? null,
+        soilMoisture5: scraped.soilMoisture5 ?? latestSensorSnapshot?.soilMoisture5 ?? null,
+        soilMoisture6: scraped.soilMoisture6 ?? latestSensorSnapshot?.soilMoisture6 ?? null,
+        soilMoisture7: scraped.soilMoisture7 ?? latestSensorSnapshot?.soilMoisture7 ?? null,
+        soilMoisture8: scraped.soilMoisture8 ?? latestSensorSnapshot?.soilMoisture8 ?? null,
+      };
       const data = latestSensorSnapshot;
       await evaluateRelayAutomation(latestSensorSnapshot);
 
@@ -1382,8 +1452,35 @@ const server = http.createServer(async (req, res) => {
         throw new Error('No sensor metrics found in mirrored content');
       }
 
+      // Hottest and coldest day of the year
+      const year = new Date().getFullYear();
+      const hottestDay = querySqlRows(`
+        SELECT date(datetime(recorded_at, '-7 hours')) AS day,
+               MAX(temperature) AS temp
+        FROM ecowitt_access_log
+        WHERE strftime('%Y', datetime(recorded_at, '-7 hours')) = '${year}'
+          AND temperature IS NOT NULL
+        GROUP BY day
+        ORDER BY temp DESC
+        LIMIT 1;
+      `);
+      const coldestDay = querySqlRows(`
+        SELECT date(datetime(recorded_at, '-7 hours')) AS day,
+               MIN(temperature) AS temp
+        FROM ecowitt_access_log
+        WHERE strftime('%Y', datetime(recorded_at, '-7 hours')) = '${year}'
+          AND temperature IS NOT NULL
+        GROUP BY day
+        ORDER BY temp ASC
+        LIMIT 1;
+      `);
+      const enrichedData = {
+        ...data,
+        hottestDay: hottestDay[0] || null,
+        coldestDay: coldestDay[0] || null
+      };
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(data));
+      res.end(JSON.stringify(enrichedData));
     } catch (error) {
       res.writeHead(502, { 'Content-Type': 'application/json' });
       res.end(

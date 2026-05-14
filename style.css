@@ -582,3 +582,12 @@ h1 {
     grid-column: 1;
   }
 }
+
+/* Temperature card stat rows - dark text */
+.sensor-card.temperature .rain-value {
+  color: #222;
+}
+
+.sensor-card.temperature .rain-label {
+  color: #444;
+}
