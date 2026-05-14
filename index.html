@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sensor Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=5">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
@@ -13,7 +13,7 @@
         
         <div class="dashboard">
             <div class="sensor-card temperature">
-                <div class="sensor-icon">🌡️</div>
+                <div class="sensor-icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
                 <h2>Temperature</h2>
                 <p class="sensor-value" id="temperature">-- °C</p>
                 <p class="sensor-status" id="temp-status">Loading...</p>
@@ -30,70 +30,70 @@
             </div>
 
             <div class="sensor-card humidity">
-                <div class="sensor-icon">💧</div>
+                <div class="sensor-icon">&#x1F4A7;</div>
                 <h2>Humidity</h2>
                 <p class="sensor-value" id="humidity">-- %</p>
                 <p class="sensor-status" id="humidity-status">Loading...</p>
             </div>
 
             <div class="sensor-card cpu-temp">
-                <div class="sensor-icon">💻</div>
+                <div class="sensor-icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
                 <h2>CPU Temp</h2>
                 <p class="sensor-value" id="cpuTemp">-- °C</p>
                 <p class="sensor-status" id="cpu-status">Loading...</p>
             </div>
 
             <div class="sensor-card soil-moisture">
-                <div class="sensor-icon">🌱</div>
+                <div class="sensor-icon">&#x1F4A7;</div>
                 <h2 id="soil-title">Soil Moisture</h2>
                 <p class="sensor-value" id="soilMoisture">-- %</p>
                 <p class="sensor-status" id="soil-status">Loading...</p>
             </div>
 
-            <div class="sensor-card soil-moisture future-sensor">
-                <div class="sensor-icon">🪴</div>
-                <h2>Soil Moisture 2</h2>
-                <p class="sensor-value">-- %</p>
-                <p class="sensor-status">Coming soon</p>
+            <div class="sensor-card soil-moisture">
+                <div class="sensor-icon">&#x1F4A7;</div>
+                <h2 id="soil-title-2">Nectarine</h2>
+                <p class="sensor-value" id="soilMoisture2">-- %</p>
+                <p class="sensor-status" id="soil-status-2">Loading...</p>
             </div>
 
-            <div class="sensor-card soil-moisture future-sensor">
-                <div class="sensor-icon">🪴</div>
+            <div class="sensor-card soil-moisture future-sensor" style="display:none">
+                <div class="sensor-icon">&#x1F4A7;</div>
                 <h2>Soil Moisture 3</h2>
                 <p class="sensor-value">-- %</p>
                 <p class="sensor-status">Coming soon</p>
             </div>
 
-            <div class="sensor-card soil-moisture future-sensor">
-                <div class="sensor-icon">🪴</div>
+            <div class="sensor-card soil-moisture future-sensor" style="display:none">
+                <div class="sensor-icon">&#x1F4A7;</div>
                 <h2>Soil Moisture 4</h2>
                 <p class="sensor-value">-- %</p>
                 <p class="sensor-status">Coming soon</p>
             </div>
 
-            <div class="sensor-card soil-moisture future-sensor">
-                <div class="sensor-icon">🪴</div>
+            <div class="sensor-card soil-moisture future-sensor" style="display:none">
+                <div class="sensor-icon">&#x1F4A7;</div>
                 <h2>Soil Moisture 5</h2>
                 <p class="sensor-value">-- %</p>
                 <p class="sensor-status">Coming soon</p>
             </div>
 
-            <div class="sensor-card soil-moisture future-sensor">
-                <div class="sensor-icon">🪴</div>
+            <div class="sensor-card soil-moisture future-sensor" style="display:none">
+                <div class="sensor-icon">&#x1F4A7;</div>
                 <h2>Soil Moisture 6</h2>
                 <p class="sensor-value">-- %</p>
                 <p class="sensor-status">Coming soon</p>
             </div>
 
-            <div class="sensor-card soil-moisture future-sensor">
-                <div class="sensor-icon">🪴</div>
+            <div class="sensor-card soil-moisture future-sensor" style="display:none">
+                <div class="sensor-icon">&#x1F4A7;</div>
                 <h2>Soil Moisture 7</h2>
                 <p class="sensor-value">-- %</p>
                 <p class="sensor-status">Coming soon</p>
             </div>
 
-            <div class="sensor-card soil-moisture future-sensor">
-                <div class="sensor-icon">🪴</div>
+            <div class="sensor-card soil-moisture future-sensor" style="display:none">
+                <div class="sensor-icon">&#x1F4A7;</div>
                 <h2>Soil Moisture 8</h2>
                 <p class="sensor-value">-- %</p>
                 <p class="sensor-status">Coming soon</p>
@@ -102,7 +102,7 @@
 
 
             <div class="sensor-card rain">
-                <div class="sensor-icon">&#127783;</div>
+                <div class="sensor-icon">&#x1F4A7;</div>
                 <h2>Rainfall</h2>
                 <p class="sensor-value" id="rainRate">-- mm/hr</p>
                 <p class="sensor-status" id="rain-rate-status">Current rate</p>
@@ -308,6 +308,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>

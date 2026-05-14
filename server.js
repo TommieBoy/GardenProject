@@ -1228,9 +1228,14 @@ const server = http.createServer(async (req, res) => {
           yearToDateMm: toMm(params.get('yearlyrainin')),
           capturedAt:   now
         };
+        // Sensor names
+        const sensorNames = ['Planter', 'Nectarine'];
+
         // Merge soil moisture into latest sensor snapshot from push data
         latestSensorSnapshot = {
             ...(latestSensorSnapshot || {}),
+            soilMoistureName:  sensorNames[0],
+            soilMoistureName2: sensorNames[1],
             soilMoisture:  toNum(params.get('soilmoisture1')),
             soilMoisture2: toNum(params.get('soilmoisture2')),
             soilMoisture3: toNum(params.get('soilmoisture3')),
@@ -1436,6 +1441,8 @@ const server = http.createServer(async (req, res) => {
       // Preserve soil moisture from push data if scraper returns null
       latestSensorSnapshot = {
         ...scraped,
+        soilMoistureName:  'Planter',
+        soilMoistureName2: 'Nectarine',
         soilMoisture:  scraped.soilMoisture  ?? latestSensorSnapshot?.soilMoisture  ?? null,
         soilMoisture2: scraped.soilMoisture2 ?? latestSensorSnapshot?.soilMoisture2 ?? null,
         soilMoisture3: scraped.soilMoisture3 ?? latestSensorSnapshot?.soilMoisture3 ?? null,

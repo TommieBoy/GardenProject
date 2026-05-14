@@ -283,7 +283,9 @@ function fetchWithTimeout(url, timeout) {
  * Expected structure: { temperature: number, humidity: number, soilMoisture: number }
  */
 function displaySensorData(data) {
-    soilTitleEl.textContent = data.soilMoistureName || 'Soil Moisture';
+    soilTitleEl.textContent = data.soilMoistureName || 'Planter';
+    const soilTitle2El = document.getElementById('soil-title-2');
+    if (soilTitle2El) soilTitle2El.textContent = data.soilMoistureName2 || 'Nectarine';
 
     // Validate and display temperature
     if (typeof data.temperature === 'number') {
@@ -322,8 +324,23 @@ function displaySensorData(data) {
         applyStatusClass(soilStatusEl, getSoilMoistureLevel(data.soilMoisture));
     } else {
         soilMoistureEl.textContent = '-- %';
-        soilStatusEl.textContent = 'Invalid data';
-        applyStatusClass(soilStatusEl, 'alert');
+        soilStatusEl.textContent = 'No sensor';
+        applyStatusClass(soilStatusEl, '');
+    }
+
+    // Soil Moisture 2
+    const soilMoisture2El = document.getElementById('soilMoisture2');
+    const soilStatus2El = document.getElementById('soil-status-2');
+    if (soilMoisture2El) {
+        if (typeof data.soilMoisture2 === 'number') {
+            soilMoisture2El.textContent = data.soilMoisture2.toFixed(1) + ' %';
+            soilStatus2El.textContent = getSoilMoistureStatus(data.soilMoisture2);
+            applyStatusClass(soilStatus2El, getSoilMoistureLevel(data.soilMoisture2));
+        } else {
+            soilMoisture2El.textContent = '-- %';
+            soilStatus2El.textContent = 'No sensor';
+            applyStatusClass(soilStatus2El, '');
+        }
     }
 
     reloadPageIfTileValuesAreBlank();
