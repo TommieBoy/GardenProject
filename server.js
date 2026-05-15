@@ -1377,8 +1377,8 @@ const server = http.createServer(async (req, res) => {
         SELECT date(datetime(recorded_at, '-7 hours')) AS day,
                MAX(daily_in) * 25.4 AS rain_mm
         FROM rain_log
-        WHERE date(datetime(recorded_at, '-7 hours')) >= '${todayStr.slice(0,10)}'
-          AND date(datetime(recorded_at, '-7 hours')) >= date('${todayStr}', '-6 days')
+        WHERE date(datetime(recorded_at, '-7 hours')) >= date('${todayStr}', '-6 days')
+          AND date(datetime(recorded_at, '-7 hours')) <= '${todayStr}'
         GROUP BY day
         ORDER BY day;
       `);

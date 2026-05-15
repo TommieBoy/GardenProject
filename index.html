@@ -101,7 +101,7 @@
         </div>
 
 
-            <div class="sensor-card rain">
+            <div class="sensor-card rain" onclick="window.location='rain.html'" style="cursor:pointer;" title="Click for rainfall history">
                 <div class="sensor-icon">&#x1F4A7;</div>
                 <h2>Rainfall</h2>
                 <p class="sensor-value" id="rainRate">-- mm/hr</p>
@@ -137,33 +137,6 @@
                     </div>
                 </div>
             </div>
-
-
-        <section class="rain-charts-section">
-            <h2>Rainfall History</h2>
-            <div class="rain-charts-grid">
-                <div class="rain-chart-card">
-                    <h3>Last 60 Minutes</h3>
-                    <canvas id="chart-60min"></canvas>
-                </div>
-                <div class="rain-chart-card">
-                    <h3>Today by Hour</h3>
-                    <canvas id="chart-today"></canvas>
-                </div>
-                <div class="rain-chart-card">
-                    <h3>Last 7 Days</h3>
-                    <canvas id="chart-7days"></canvas>
-                </div>
-                <div class="rain-chart-card">
-                    <h3>Last 30 Days</h3>
-                    <canvas id="chart-30days"></canvas>
-                </div>
-                <div class="rain-chart-card rain-chart-wide">
-                    <h3>Year to Date by Month</h3>
-                    <canvas id="chart-ytd"></canvas>
-                </div>
-            </div>
-        </section>
 
         <section class="relay-section" aria-label="Relay controls">
             <div class="relay-header">
