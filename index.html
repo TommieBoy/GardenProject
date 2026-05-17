@@ -53,6 +53,31 @@
                 </div>
             </div>
 
+            <div class="sensor-card indoor-aqi" onclick="window.location='indoor-aqi.html'" style="cursor:pointer;" title="Click for indoor AQI history">
+                <div class="sensor-icon">&#x1F3E0;</div>
+                <h2>Indoor Air</h2>
+                <p class="sensor-value" id="indoor-co2">--</p>
+                <p class="sensor-status" id="indoor-co2-status">Loading...</p>
+                <div class="rain-history">
+                    <div class="rain-row">
+                        <span class="rain-label">CO2 24h Avg</span>
+                        <span class="rain-value" id="indoor-co2-24h">--</span>
+                    </div>
+                    <div class="rain-row">
+                        <span class="rain-label">PM2.5</span>
+                        <span class="rain-value" id="indoor-pm25">--</span>
+                    </div>
+                    <div class="rain-row">
+                        <span class="rain-label">PM2.5 24h Avg</span>
+                        <span class="rain-value" id="indoor-pm25-24h">--</span>
+                    </div>
+                    <div class="rain-row">
+                        <span class="rain-label">PM10</span>
+                        <span class="rain-value" id="indoor-pm10">--</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="sensor-card cpu-temp">
                 <div class="sensor-icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
                 <h2>CPU Temp</h2>

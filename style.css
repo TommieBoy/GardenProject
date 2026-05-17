@@ -604,3 +604,16 @@ h1 {
 .sensor-card.aqi .rain-label {
   color: rgba(255,255,255,0.85);
 }
+
+/* Indoor AQI card */
+.sensor-card.indoor-aqi {
+  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+}
+
+.sensor-card.indoor-aqi .rain-value {
+  color: #333;
+}
+
+.sensor-card.indoor-aqi .rain-label {
+  color: rgba(0,0,0,0.6);
+}

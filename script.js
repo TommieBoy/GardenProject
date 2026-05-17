@@ -774,3 +774,32 @@ async function fetchAqiData() {
 
 fetchAqiData();
 setInterval(fetchAqiData, 60000);
+
+// Indoor AQI
+function getCo2Status(co2) {
+  if (co2 === null) return 'No data';
+  if (co2 <= 600) return 'Excellent';
+  if (co2 <= 800) return 'Good';
+  if (co2 <= 1000) return 'Fair';
+  if (co2 <= 1500) return 'Poor';
+  return 'Very Poor';
+}
+
+async function fetchIndoorAqiData() {
+  try {
+    const res = await fetch('/api/aqi/indoor');
+    const data = await res.json();
+    if (data.error) return;
+    document.getElementById('indoor-co2').innerHTML = data.co2 + ' <span style="font-size:0.5em">ppm</span>';
+    document.getElementById('indoor-co2-status').textContent = getCo2Status(data.co2);
+    document.getElementById('indoor-co2-24h').textContent = data.co2_24h + ' ppm';
+    document.getElementById('indoor-pm25').textContent = data.pm25 + ' ug/m3';
+    document.getElementById('indoor-pm25-24h').textContent = data.pm25_24h + ' ug/m3';
+    document.getElementById('indoor-pm10').textContent = data.pm10 + ' ug/m3';
+  } catch (err) {
+    console.error('Failed to fetch indoor AQI data:', err);
+  }
+}
+
+fetchIndoorAqiData();
+setInterval(fetchIndoorAqiData, 60000);

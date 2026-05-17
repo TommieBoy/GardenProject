@@ -32,6 +32,7 @@ let sensorPollStartTimer = null;
 let latestSensorSnapshot = null;
 let latestRainData = null;
 let latestAqiData = null;
+let latestIndoorAqiData = null;
 const relayAutoOffTimers = new Array(RELAY_COUNT).fill(null);
 const relayState = Array.from({ length: RELAY_COUNT }, (_, index) => ({
   id: index + 1,
@@ -121,6 +122,19 @@ function initializeDatabase() {
       record_date TEXT NOT NULL,
       pm25 REAL,
       pm25_24h REAL
+    );
+    CREATE TABLE IF NOT EXISTS indoor_aqi_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      recorded_at TEXT NOT NULL,
+      record_date TEXT NOT NULL,
+      co2 REAL,
+      co2_24h REAL,
+      pm25 REAL,
+      pm25_24h REAL,
+      pm10 REAL,
+      pm10_24h REAL,
+      pm1 REAL,
+      pm4 REAL
     );
     CREATE TABLE IF NOT EXISTS rain_log (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1227,13 +1241,42 @@ const server = http.createServer(async (req, res) => {
         const hour = time.slice(0, 2);
         const minute = time.slice(3, 5);
         const toNum = v => { const n = parseFloat(v); return isFinite(n) ? n : null; };
-        // Store AQI data from push
+        // Store outdoor AQI data from push
         latestAqiData = {
           pm25:      toNum(params.get('pm25_ch1')),
           pm25_24h:  toNum(params.get('pm25_avg_24h_ch1')),
           capturedAt: now
         };
+
+        // Store indoor AQI data from push
+        latestIndoorAqiData = {
+          co2:        toNum(params.get('co2')),
+          co2_24h:    toNum(params.get('co2_24h')),
+          pm25:       toNum(params.get('pm25_co2')),
+          pm25_24h:   toNum(params.get('pm25_24h_co2')),
+          pm10:       toNum(params.get('pm10_co2')),
+          pm10_24h:   toNum(params.get('pm10_24h_co2')),
+          pm1:        toNum(params.get('pm1_co2')),
+          pm4:        toNum(params.get('pm4_co2')),
+          capturedAt: now
+        };
         runSql(`
+          INSERT INTO indoor_aqi_log
+          (recorded_at, record_date, co2, co2_24h, pm25, pm25_24h, pm10, pm10_24h, pm1, pm4)
+          VALUES (
+            ${toSqlValue(now)},
+            ${toSqlValue(date)},
+            ${toSqlValue(params.get('co2'))},
+            ${toSqlValue(params.get('co2_24h'))},
+            ${toSqlValue(params.get('pm25_co2'))},
+            ${toSqlValue(params.get('pm25_24h_co2'))},
+            ${toSqlValue(params.get('pm10_co2'))},
+            ${toSqlValue(params.get('pm10_24h_co2'))},
+            ${toSqlValue(params.get('pm1_co2'))},
+            ${toSqlValue(params.get('pm4_co2'))}
+          );
+        \`);
+        runSql(\`
           INSERT INTO aqi_log (recorded_at, record_date, pm25, pm25_24h)
           VALUES (
             ${toSqlValue(now)},
@@ -1296,6 +1339,37 @@ const server = http.createServer(async (req, res) => {
         res.end('Error');
       }
     });
+    return;
+  }
+
+  // Indoor AQI data API
+  if (reqPath === '/api/aqi/indoor' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(latestIndoorAqiData || { error: 'No indoor AQI data received yet' }));
+    return;
+  }
+
+  // Indoor AQI history API
+  if (reqPath === '/api/aqi/indoor/history' && req.method === 'GET') {
+    try {
+      const year = new Date().getFullYear();
+      const daily = querySqlRows(`
+        SELECT date(datetime(recorded_at, '-7 hours')) AS day,
+               ROUND(AVG(co2), 1) AS co2_avg,
+               ROUND(AVG(co2_24h), 1) AS co2_24h_avg,
+               ROUND(AVG(pm25), 2) AS pm25_avg,
+               ROUND(AVG(pm10), 2) AS pm10_avg
+        FROM indoor_aqi_log
+        WHERE strftime('%Y', datetime(recorded_at, '-7 hours')) = '${year}'
+        GROUP BY day
+        ORDER BY day;
+      `);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ daily }));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
     return;
   }
 
