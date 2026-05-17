@@ -31,6 +31,7 @@ let sensorPollTimer = null;
 let sensorPollStartTimer = null;
 let latestSensorSnapshot = null;
 let latestRainData = null;
+let latestAqiData = null;
 const relayAutoOffTimers = new Array(RELAY_COUNT).fill(null);
 const relayState = Array.from({ length: RELAY_COUNT }, (_, index) => ({
   id: index + 1,
@@ -113,6 +114,13 @@ function initializeDatabase() {
       soil_moisture_6 REAL,
       soil_moisture_7 REAL,
       soil_moisture_8 REAL
+    );
+    CREATE TABLE IF NOT EXISTS aqi_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      recorded_at TEXT NOT NULL,
+      record_date TEXT NOT NULL,
+      pm25 REAL,
+      pm25_24h REAL
     );
     CREATE TABLE IF NOT EXISTS rain_log (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1219,6 +1227,22 @@ const server = http.createServer(async (req, res) => {
         const hour = time.slice(0, 2);
         const minute = time.slice(3, 5);
         const toNum = v => { const n = parseFloat(v); return isFinite(n) ? n : null; };
+        // Store AQI data from push
+        latestAqiData = {
+          pm25:      toNum(params.get('pm25_ch1')),
+          pm25_24h:  toNum(params.get('pm25_avg_24h_ch1')),
+          capturedAt: now
+        };
+        runSql(`
+          INSERT INTO aqi_log (recorded_at, record_date, pm25, pm25_24h)
+          VALUES (
+            ${toSqlValue(now)},
+            ${toSqlValue(date)},
+            ${toSqlValue(params.get('pm25_ch1'))},
+            ${toSqlValue(params.get('pm25_avg_24h_ch1'))}
+          );
+        `);
+
         latestRainData = {
           rainRateMm:   toMm(params.get('rainratein')),
           last60MinMm:  toMm(params.get('hourlyrainin')),
@@ -1272,6 +1296,35 @@ const server = http.createServer(async (req, res) => {
         res.end('Error');
       }
     });
+    return;
+  }
+
+  // AQI data API
+  if (reqPath === '/api/aqi' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(latestAqiData || { error: 'No AQI data received yet' }));
+    return;
+  }
+
+  // AQI history API - daily 24h average for the year
+  if (reqPath === '/api/aqi/history' && req.method === 'GET') {
+    try {
+      const year = new Date().getFullYear();
+      const daily = querySqlRows(`
+        SELECT date(datetime(recorded_at, '-7 hours')) AS day,
+               ROUND(AVG(COALESCE(pm25_24h, pm25)), 2) AS pm25_24h_avg
+        FROM aqi_log
+        WHERE strftime('%Y', datetime(recorded_at, '-7 hours')) = '${year}'
+          AND COALESCE(pm25_24h, pm25) IS NOT NULL
+        GROUP BY day
+        ORDER BY day;
+      `);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ daily }));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
     return;
   }
 

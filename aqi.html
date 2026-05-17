@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality History</title>
+    <link rel="stylesheet" href="style.css?v=5">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1.2rem;
+            background: #185a9d;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-btn:hover { background: #134a82; }
+        .aqi-chart-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+        .aqi-chart-card h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: #555;
+        }
+        .aqi-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            font-size: 0.85em;
+        }
+        .aqi-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .aqi-legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a class="back-btn" href="/">&larr; Back to Dashboard</a>
+        <h1>Air Quality History</h1>
+
+        <div class="aqi-chart-card">
+            <h3>PM2.5 Daily 24h Average &mdash; Year to Date</h3>
+            <canvas id="chart-aqi-year"></canvas>
+            <div class="aqi-legend">
+                <div class="aqi-legend-item"><div class="aqi-legend-color" style="background:#00e400"></div> Good (0-12)</div>
+                <div class="aqi-legend-item"><div class="aqi-legend-color" style="background:#ffff00"></div> Moderate (12-35.4)</div>
+                <div class="aqi-legend-item"><div class="aqi-legend-color" style="background:#ff7e00"></div> Unhealthy for Sensitive (35.4-55.4)</div>
+                <div class="aqi-legend-item"><div class="aqi-legend-color" style="background:#ff0000"></div> Unhealthy (55.4+)</div>
+            </div>
+        </div>
+    </div>
+    <script>
+    async function loadAqiChart() {
+        const res = await fetch('/api/aqi/history');
+        const data = await res.json();
+
+        const labels = data.daily.map(r => r.day.slice(5));
+        const values = data.daily.map(r => Math.round(r.pm25_24h_avg * 10) / 10);
+
+        // Color bars by AQI category
+        const colors = values.map(v => {
+            if (v <= 12) return 'rgba(0, 228, 0, 0.8)';
+            if (v <= 35.4) return 'rgba(255, 255, 0, 0.8)';
+            if (v <= 55.4) return 'rgba(255, 126, 0, 0.8)';
+            return 'rgba(255, 0, 0, 0.8)';
+        });
+
+        new Chart(document.getElementById('chart-aqi-year'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'PM2.5 24h avg (µg/m³)',
+                    data: values,
+                    backgroundColor: colors,
+                    borderWidth: 0,
+                    borderRadius: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `${ctx.raw} µg/m³`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: v => `${v} µg/m³` },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    }
+                }
+            }
+        });
+    }
+    loadAqiChart();
+    </script>
+</body>
+</html>

@@ -716,3 +716,61 @@ async function fetchRainData() {
 fetchRainData();
 setInterval(fetchRainData, 60000);
 
+
+// AQI data
+function getAqiStatus(pm25) {
+  if (pm25 === null) return 'No data';
+  if (pm25 <= 12) return 'Good';
+  if (pm25 <= 35.4) return 'Moderate';
+  if (pm25 <= 55.4) return 'Unhealthy for sensitive groups';
+  if (pm25 <= 150.4) return 'Unhealthy';
+  if (pm25 <= 250.4) return 'Very Unhealthy';
+  return 'Hazardous';
+}
+
+async function fetchAqiData() {
+  try {
+    const res = await fetch('/api/aqi');
+    const data = await res.json();
+    if (data.error) return;
+    const fmt = v => v !== null ? v + ' ug/m3' : '--';
+    document.getElementById('pm25').innerHTML = data.pm25 + ' <span style="font-size:0.5em">ug/m3</span>';
+    document.getElementById('aqi-status').textContent = getAqiStatus(data.pm25);
+    document.getElementById('pm25-now').textContent = fmt(data.pm25);
+    document.getElementById('pm25-24h').textContent = fmt(data.pm25_24h);
+  } catch (err) {
+    console.error('Failed to fetch AQI data:', err);
+  }
+}
+
+fetchAqiData();
+setInterval(fetchAqiData, 60000);
+
+// AQI data
+function getAqiStatus(pm25) {
+  if (pm25 === null) return 'No data';
+  if (pm25 <= 12) return 'Good';
+  if (pm25 <= 35.4) return 'Moderate';
+  if (pm25 <= 55.4) return 'Unhealthy for sensitive groups';
+  if (pm25 <= 150.4) return 'Unhealthy';
+  if (pm25 <= 250.4) return 'Very Unhealthy';
+  return 'Hazardous';
+}
+
+async function fetchAqiData() {
+  try {
+    const res = await fetch('/api/aqi');
+    const data = await res.json();
+    if (data.error) return;
+    const fmt = v => v !== null ? `${v} µg/m³` : '--';
+    document.getElementById('pm25').innerHTML = `${data.pm25} <span style="font-size:0.5em">µg/m³</span>`;
+    document.getElementById('aqi-status').textContent = getAqiStatus(data.pm25);
+    document.getElementById('pm25-now').textContent = fmt(data.pm25);
+    document.getElementById('pm25-24h').textContent = fmt(data.pm25_24h);
+  } catch (err) {
+    console.error('Failed to fetch AQI data:', err);
+  }
+}
+
+fetchAqiData();
+setInterval(fetchAqiData, 60000);

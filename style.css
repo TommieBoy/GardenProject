@@ -591,3 +591,16 @@ h1 {
 .sensor-card.temperature .rain-label {
   color: #444;
 }
+
+/* AQI card */
+.sensor-card.aqi {
+  background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+}
+
+.sensor-card.aqi .rain-value {
+  color: #fff;
+}
+
+.sensor-card.aqi .rain-label {
+  color: rgba(255,255,255,0.85);
+}

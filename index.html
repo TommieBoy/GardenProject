@@ -36,6 +36,23 @@
                 <p class="sensor-status" id="humidity-status">Loading...</p>
             </div>
 
+            <div class="sensor-card aqi" onclick="window.location='aqi.html'" style="cursor:pointer;" title="Click for AQI history">
+                <div class="sensor-icon">&#x1F32C;&#xFE0F;</div>
+                <h2>Air Quality</h2>
+                <p class="sensor-value" id="pm25">--</p>
+                <p class="sensor-status" id="aqi-status">Loading...</p>
+                <div class="rain-history">
+                    <div class="rain-row">
+                        <span class="rain-label">PM2.5 Now</span>
+                        <span class="rain-value" id="pm25-now">--</span>
+                    </div>
+                    <div class="rain-row">
+                        <span class="rain-label">24h Average</span>
+                        <span class="rain-value" id="pm25-24h">--</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="sensor-card cpu-temp">
                 <div class="sensor-icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
                 <h2>CPU Temp</h2>
